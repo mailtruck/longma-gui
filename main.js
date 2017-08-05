@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const generator = require('animation-strip-generator');
+const spawn = require('child_process').spawn;
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -21,17 +23,58 @@ function createWindow() {
 
 function handleSubmission() {
     ipcMain.on('did-submit-form', (event, argument) => {
+
         const { source, destination, name, fps } = argument;
-        generator(source, destination, name, fps).then(
-            success => {
-                console.log(success);
-                event.sender.send('processing-did-succeed', /^(.*?.html)/m.exec(success)[1]);
-            },
-            error => {
-                console.log(error);
-                event.sender.send('processing-did-fail', error);
-            }
-        );
+
+      let commander = function (command, args) {
+        return function(){
+          const cmd = spawn(command, args)
+          cmd.stdout.on('data', (data)=>{
+          console.log(`stdout: ${data}`);
+          })
+          cmd.stderr.on('data'),(data)=>{
+            console.log(`stderr: ${data}`);
+          }
+          cmd.on('close', (code)=>{
+            console.log(`child process exited with code ${code}`);
+          })
+
+
+        
+        }(command, args) 
+      
+      
+      
+      } 
+      
+    commander('echo',[source, destination, name, fps])
+
+const ls = spawn('ls', ['-lh', '/usr']);
+
+ls.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+});
+
+ls.stderr.on('data', (data) => {
+    console.log(`stderr: ${data}`);
+});
+
+ls.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+});
+
+
+
+  //      generator(source, destination, name, fps).then(
+    //        success => {
+  //              console.log(success);
+    //            event.sender.send('processing-did-succeed', /^(.*?.html)/m.exec(success)[1]);
+      //      },
+        //    error => {
+          //      console.log(error);
+         //       event.sender.send('processing-did-fail', error);
+         //   }
+      //  );
     });
 }
 

@@ -37,7 +37,7 @@ ipcRenderer.on('processing-did-fail', (event, error) => {
 
 buttons.source.addEventListener('click', () => {
     const directory = dialog.showOpenDialog({
-        properties: ['openDirectory'],
+        properties: ['openFile'],
     });
     if (directory) {
         inputs.source.value = directory;
